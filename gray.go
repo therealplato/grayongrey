@@ -16,6 +16,9 @@ type World struct {
 // Iterate performs one game loop
 func (w *World) Iterate() {
 	w.turns++
+	for _, a := range w.aliens {
+		a.move()
+	}
 }
 
 // GameOver returns true if 10000 moves have passed or all aliens are terminated
@@ -72,4 +75,28 @@ type alien struct {
 	name      string
 	loc       *node
 	destroyed bool
+}
+
+// move randomly picks an available edge, or no edge, then updates the alien's location and the locataions' aliens
+func (a *alien) move() {
+	available := make([]*node, 0)
+	for _, v := range a.loc.edges {
+		available = append(available, v)
+	}
+	n := len(available)
+	i := rand.Intn(n + 1)
+	if i == 0 {
+		// Don't move
+		return
+	}
+	dest := available[i-1]
+
+	// leave this place
+	delete(a.loc.aliens, a)
+
+	// go to that place
+	dest.aliens[a] = struct{}{}
+
+	// update self
+	a.loc = dest
 }

@@ -76,6 +76,7 @@ func TestIterateMovesAlien(t *testing.T) {
 		edges:  make(map[string]*node),
 		aliens: map[*alien]struct{}{},
 	}
+	a1.loc = n1
 	n1.edges["west"] = n2
 	n2.edges["east"] = n1
 	w := World{
@@ -89,7 +90,7 @@ func TestIterateMovesAlien(t *testing.T) {
 	if len(n1.aliens) != 0 {
 		t.Fatal("alien did not leave Arvada")
 	}
-	if len(n2.aliens) != 0 {
+	if len(n2.aliens) != 1 {
 		t.Fatal("alien did not arrive in Boulder")
 	}
 	if w.aliens[0].loc != n2 {
