@@ -55,7 +55,7 @@ func processLine(bb []byte, m map[string]*node) error {
 		// groups[1] is direction
 		// groups[2] is destination
 		if len(groups) != 3 {
-			return fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
+			return fmt.Errorf("input edge was not shaped like north=Beirut: %q", string(fields[i]))
 		}
 		dir := string(groups[1])
 		dest := string(groups[2])
