@@ -8,19 +8,18 @@ import (
 	"regexp"
 )
 
-func parseInput(r io.Reader) ([]node, error) {
-	var out []node
+func parseInput(r io.Reader) (map[string]node, error) {
+	var out = make(map[string]node)
 	bb, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
 	lines := bytes.Split(bb, []byte("\n"))
 	for _, line := range lines {
-		n, err := parseLine(line)
+		err := processLine(line, out)
 		if err != nil {
 			return nil, err
 		}
-		out = append(out, n)
 	}
 	return out, nil
 }
@@ -29,17 +28,22 @@ func parseInput(r io.Reader) ([]node, error) {
 // Assumption: directions are lowercase
 var regexpDirection = regexp.MustCompile(`^(north|east|south|west)=([^=]+)$`)
 
-func parseLine(bb []byte) (node, error) {
+func processLine(bb []byte, nodes map[string]node) error {
 	var n node
 	fields := bytes.Fields(bb)
-	if len(fields) > 5 {
-		return n, fmt.Errorf("input had too many items: %q", string(bb))
+	if len(fields) < 1 {
+		return fmt.Errorf("input line had zero items: %q", string(bb))
 	}
+	if len(fields) > 5 {
+		return fmt.Errorf("input had too many items: %q", string(bb))
+	}
+	n.name = string(fields[0])
 	for i := 1; i < len(fields); i++ {
 		groups := regexpDirection.FindSubmatch(fields[i])
 		if len(groups) != 2 {
-			return n, fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
+			return fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
 		}
 	}
-	return n, nil
+	nodes[n.name] = n
+	return nil
 }
