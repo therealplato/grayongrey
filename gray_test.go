@@ -6,13 +6,6 @@ import (
 )
 
 func TestNewWorld(t *testing.T) {
-	t.Run("errors with empty reader", func(t *testing.T) {
-		_, err := New(&bytes.Buffer{}, 0)
-		if err == nil {
-			t.Fatalf("expected error, got %v\n", err)
-		}
-	})
-
 	// Assumption: Cities can be disconnected and have no trailing space
 	// Assumption: Input does not necessarily have trailing newline
 	var fixtureOneCity = bytes.NewBufferString("Aberdeen")

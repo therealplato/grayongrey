@@ -32,7 +32,7 @@ func processLine(bb []byte, nodes map[string]node) error {
 	var n node
 	fields := bytes.Fields(bb)
 	if len(fields) < 1 {
-		return fmt.Errorf("input line had zero items: %q", string(bb))
+		return nil
 	}
 	if len(fields) > 5 {
 		return fmt.Errorf("input had too many items: %q", string(bb))

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -43,7 +44,11 @@ func main() {
 			log.Fatalf("issue reading input file: %v", err)
 		}
 	}
-	world := grayongrey.New(input, n)
+	world, err := grayongrey.New(input, n)
+	if err != nil {
+		log.Fatalf("issue instantiating world: %v", err)
+	}
+	fmt.Printf("%#v\n", world)
 	for world.Exists() {
 		world.Iterate()
 	}

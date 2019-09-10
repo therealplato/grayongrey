@@ -26,7 +26,7 @@ func TestParseInputAcceptsIsolatedCity(t *testing.T) {
 	input := bytes.NewBufferString("Athens")
 	nodes, err := parseInput(input)
 	if err != nil {
-		t.Fatalf("expected nil, got %v", err)
+		t.Fatalf("expected nil error, got %v", err)
 	}
 	if len(nodes) != 1 {
 		t.Fatalf("expected one node, got %v", len(nodes))
@@ -34,6 +34,20 @@ func TestParseInputAcceptsIsolatedCity(t *testing.T) {
 	_, ok := nodes["Athens"]
 	if !ok {
 		t.Fatal("expected node map keyed on Athens, but was missing")
+	}
+}
+
+func TestParseInputIgnoresEmptyLines(t *testing.T) {
+	input := bytes.NewBufferString(`Athens
+
+Beirut
+`)
+	nodes, err := parseInput(input)
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if len(nodes) != 2 {
+		t.Fatalf("expected two nodes, got %v", len(nodes))
 	}
 }
 
