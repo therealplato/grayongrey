@@ -37,6 +37,9 @@ func (w *World) GameOver() bool {
 
 func (w *World) Brawl() {
 	for _, node := range w.nodes {
+		if node.destroyed {
+			continue
+		}
 		participants := make([]string, 0)
 		if len(node.aliens) > 1 {
 			// destroy aliens

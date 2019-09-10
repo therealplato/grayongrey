@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"math/rand"
@@ -33,12 +34,11 @@ func main() {
 	} else {
 		// assumption: non-piped input is specified by filename
 		if len(os.Args) < 2 {
-			log.Fatal("Pipe the starting topography in or 'gg filename'")
-		} else if len(os.Args) > 2 {
-			log.Println("ignoring arguments after " + os.Args[1])
+			log.Fatal("Pipe the starting city topography in or 'gg filename'")
+		} else if flag.NArg() > 1 {
+			log.Println("ignoring arguments after " + flag.Arg(0))
 		}
-		// TODO: thought incorrectly that flags did not appear in os.Args, `gg -n 10 filename` fails
-		f, err := os.Open(os.Args[1])
+		f, err := os.Open(flag.Arg(0))
 		if err != nil {
 			log.Fatalf("issue opening file %q: %v", os.Args[1], err)
 		}
@@ -54,5 +54,6 @@ func main() {
 	for !world.GameOver() {
 		world.Iterate()
 	}
+	fmt.Printf("\nFinal Topography:")
 	world.Log()
 }
