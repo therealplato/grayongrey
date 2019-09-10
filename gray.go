@@ -103,7 +103,9 @@ func (a *alien) move() {
 	}
 	available := make([]*node, 0)
 	for _, v := range a.loc.edges {
-		available = append(available, v)
+		if !v.destroyed {
+			available = append(available, v)
+		}
 	}
 	n := len(available)
 	i := rand.Intn(n + 1)
