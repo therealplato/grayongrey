@@ -6,6 +6,8 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"github.com/therealplato/grayongrey"
 )
 
 func main() {
@@ -41,6 +43,8 @@ func main() {
 			log.Fatalf("issue reading input file: %v", err)
 		}
 	}
-	log.Println("input file:")
-	log.Println(input.String())
+	world := grayongrey.New(input, n)
+	for world.Exists() {
+		world.Iterate()
+	}
 }
