@@ -8,14 +8,14 @@ import (
 func TestParseInputErrors(t *testing.T) {
 	t.Run("invalid direction", func(t *testing.T) {
 		input := bytes.NewBufferString("a up=ISS")
-		_, _, err := parseInput(input)
+		_, err := parseInput(input)
 		if err == nil {
 			t.Fatal("expected parse error, got nil")
 		}
 	})
 	t.Run("extra directions", func(t *testing.T) {
 		input := bytes.NewBufferString("a north=b east=c south=d west=e up=ISS")
-		_, _, err := parseInput(input)
+		_, err := parseInput(input)
 		if err == nil {
 			t.Fatal("expected parse error, got nil")
 		}
@@ -24,24 +24,17 @@ func TestParseInputErrors(t *testing.T) {
 
 func TestParseInputAcceptsIsolatedCity(t *testing.T) {
 	input := bytes.NewBufferString("Athens")
-	nodes, names, err := parseInput(input)
+	m, err := parseInput(input)
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
-	if len(nodes) != 1 {
-		t.Fatalf("expected one node, got %v", len(nodes))
+	if len(m) != 1 {
+		t.Fatalf("expected one node, got %v", len(m))
 	}
-	_, ok := nodes["Athens"]
+	_, ok := m["Athens"]
 	if !ok {
 		t.Fatal("expected node map keyed on Athens, but was missing")
 	}
-	if len(names) != 1 {
-		t.Fatalf("expected one name, got %v", len(names))
-	}
-	if names[0] != "Athens" {
-		t.Fatalf("expected name Athens, got %v", names[0])
-	}
-
 }
 
 func TestParseInputIgnoresEmptyLines(t *testing.T) {
@@ -49,36 +42,30 @@ func TestParseInputIgnoresEmptyLines(t *testing.T) {
 
 Beirut
 `)
-	nodes, names, err := parseInput(input)
+	nodes, err := parseInput(input)
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 	if len(nodes) != 2 {
 		t.Fatalf("expected two nodes, got %v", len(nodes))
-	}
-	if len(names) != 2 {
-		t.Fatalf("expected two names, got %v", len(names))
 	}
 }
 
-func TestParseInputPopulatesMissingNodes(t *testing.T) {
-	input := bytes.NewBufferString("Athens north=Beirut")
-	nodes, names, err := parseInput(input)
+func TestProcessLinePopulatesMissingNodes(t *testing.T) {
+	m := make(map[string]*node)
+	err := processLine([]byte("Athens north=Beirut"), m)
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
-	if len(nodes) != 2 {
-		t.Fatalf("expected two nodes, got %v", len(nodes))
+	if len(m) != 2 {
+		t.Fatalf("expected two nodes, got %v", len(m))
 	}
-	_, ok := nodes["Athens"]
+	_, ok := m["Athens"]
 	if !ok {
 		t.Fatal("expected node map keyed on Athens, but was missing")
 	}
-	_, ok = nodes["Beirut"]
+	_, ok = m["Beirut"]
 	if !ok {
 		t.Fatal("expected node map keyed on Athens, but was missing")
-	}
-	if len(names) != 2 {
-		t.Fatalf("expected two names, got %v", len(names))
 	}
 }

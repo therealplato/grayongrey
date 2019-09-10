@@ -9,26 +9,23 @@ import (
 	"regexp"
 )
 
-func parseInput(r io.Reader) (map[string]*node, []string, error) {
+func parseInput(r io.Reader) (map[string]*node, error) {
 	var outMap = make(map[string]*node)
-	var outNames []string
 	bb, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	lines := bytes.Split(bb, []byte("\n"))
 	for _, line := range lines {
-		node, err := processLine(line)
+		err := processLine(line, outMap)
 		if err != nil {
 			if err == errEmptyLine {
 				continue
 			}
-			return nil, nil, err
+			return nil, err
 		}
-		outMap[node.name] = node
-		outNames = append(outNames, node.name)
 	}
-	return outMap, outNames, nil
+	return outMap, nil
 }
 
 // Assumption: city names may not have equals signs
@@ -37,16 +34,16 @@ var regexpDirection = regexp.MustCompile(`^(north|east|south|west)=([^=]+)$`)
 
 var errEmptyLine = errors.New("input line was empty")
 
-func processLine(bb []byte) (*node, error) {
+func processLine(bb []byte, m map[string]*node) error {
 	var n = &node{
 		aliens: make(map[*alien]struct{}),
 	}
 	fields := bytes.Fields(bb)
 	if len(fields) < 1 {
-		return n, errEmptyLine
+		return errEmptyLine
 	}
 	if len(fields) > 5 {
-		return n, fmt.Errorf("input had too many items: %q", string(bb))
+		return fmt.Errorf("input had too many items: %q", string(bb))
 	}
 	n.name = string(fields[0])
 	for i := 1; i < len(fields); i++ {
@@ -55,11 +52,11 @@ func processLine(bb []byte) (*node, error) {
 		// groups[1] is direction
 		// groups[2] is destination
 		if len(groups) != 3 {
-			return n, fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
+			return fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
 		}
 		// dir := string(groups[1])
 		dest := string(groups[2])
 		n.edges = append(n.edges, dest)
 	}
-	return n, nil
+	return nil
 }

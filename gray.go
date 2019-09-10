@@ -1,6 +1,7 @@
 package grayongrey
 
 import (
+	"errors"
 	"io"
 	"math/rand"
 	"strconv"
@@ -25,9 +26,16 @@ func (w *World) Exists() bool {
 // New takes input world data and number of attackers and creates a *World state
 func New(input io.Reader, attackers uint) (*World, error) {
 	aliens := make([]*alien, 0)
-	nodeMap, nodeNames, err := parseInput(input)
+	nodeNames := make([]string, 0)
+	nodeMap, err := parseInput(input)
 	if err != nil {
 		return nil, err
+	}
+	if len(nodeMap) == 0 {
+		return nil, errors.New("New called with no input")
+	}
+	for k, _ := range nodeMap {
+		nodeNames = append(nodeNames, k)
 	}
 	var i uint
 	for ; i < attackers; i++ {
