@@ -2,40 +2,46 @@ package grayongrey
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"regexp"
 )
 
-func parseInput(r io.Reader) (map[string]node, error) {
-	var out = make(map[string]node)
+func parseInput(r io.Reader) (map[string]node, []string, error) {
+	var outMap = make(map[string]node)
+	var outNames []string
 	bb, err := ioutil.ReadAll(r)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	lines := bytes.Split(bb, []byte("\n"))
 	for _, line := range lines {
-		err := processLine(line, out)
+		node, err := processLine(line)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
+		outMap[node.name] = node
+		outNames = append(outNames, node.name)
 	}
-	return out, nil
+	return outMap, outNames, nil
 }
 
 // Assumption: city names may not have equals signs
 // Assumption: directions are lowercase
 var regexpDirection = regexp.MustCompile(`^(north|east|south|west)=([^=]+)$`)
 
-func processLine(bb []byte, nodes map[string]node) error {
+var errEmptyLine = errors.New("input line was empty")
+
+func processLine(bb []byte) (node, error) {
 	var n node
 	fields := bytes.Fields(bb)
 	if len(fields) < 1 {
-		return nil
+		return n, errEmptyLine
 	}
 	if len(fields) > 5 {
-		return fmt.Errorf("input had too many items: %q", string(bb))
+		return n, fmt.Errorf("input had too many items: %q", string(bb))
 	}
 	n.name = string(fields[0])
 	for i := 1; i < len(fields); i++ {
@@ -44,12 +50,11 @@ func processLine(bb []byte, nodes map[string]node) error {
 		// groups[1] is direction
 		// groups[2] is destination
 		if len(groups) != 3 {
-			return fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
+			return n, fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
 		}
 		// dir := string(groups[1])
 		dest := string(groups[2])
 		n.edges = append(n.edges, dest)
 	}
-	nodes[n.name] = n
-	return nil
+	return n, nil
 }
