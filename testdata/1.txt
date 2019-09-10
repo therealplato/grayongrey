@@ -1,2 +1,2 @@
 Athens north=Beirut west=Cairo south=Dunkirk
-Beirut south=Edmonton west=Fargo
+Beirut south=Athens west=Fargo

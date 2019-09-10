@@ -54,6 +54,6 @@ func main() {
 	for !world.GameOver() {
 		world.Iterate()
 	}
-	fmt.Printf("\nFinal Topography:")
+	fmt.Println("\nFinal Topography:")
 	world.Log()
 }

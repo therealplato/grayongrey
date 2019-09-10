@@ -1,11 +1,34 @@
 gray on grey
 ============
 
+Install:
+```
+go get -u github.com/therealplato/grayongrey/cmd/gg
+```
+
+Usage with pipe:
+```
+echo 'Athens north=Beirut west=Cairo south=Dunkirk
+Beirut south=Athens west=Fargo' | gg
+```
+
+Usage with file:
+```
+gg filename
+```
+
+Custom alien count:
+```
+gg filename
+```
+
+Problem Statement
+-----------------
 
 Input a map describing city topography as name and cardinal direction links:
 ```
 Athens north=Beirut west=Cairo south=Dunkirk
-Beirut south=Edmonton west=Fargo
+Beirut south=Athens west=Fargo
 ```
 
 Place (command line flag) N aliens randomly on the cities.
