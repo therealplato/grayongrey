@@ -34,6 +34,11 @@ var regexpDirection = regexp.MustCompile(`^(north|east|south|west)=([^=]+)$`)
 
 var errEmptyLine = errors.New("input line was empty")
 
+// processLine is noop if empty line
+// If city does not exist, add it
+// Update city's edges
+// If connected city does not exist, add it
+// Update connected city's edges
 func processLine(bb []byte, m map[string]*node) error {
 	fields := bytes.Fields(bb)
 	if len(fields) < 1 {
@@ -43,14 +48,7 @@ func processLine(bb []byte, m map[string]*node) error {
 		return fmt.Errorf("input had too many items: %q", string(bb))
 	}
 	name := string(fields[0])
-	n, _ := m[name]
-	if n == nil {
-		n = &node{
-			name:   name,
-			aliens: make(map[*alien]struct{}),
-		}
-	}
-
+	rawEdges := make(map[string]string)
 	for i := 1; i < len(fields); i++ {
 		groups := regexpDirection.FindSubmatch(fields[i])
 		// groups[0] is full match
@@ -59,10 +57,51 @@ func processLine(bb []byte, m map[string]*node) error {
 		if len(groups) != 3 {
 			return fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
 		}
-		// dir := string(groups[1])
+		dir := string(groups[1])
 		dest := string(groups[2])
-		n.edges = append(n.edges, dest)
+		rawEdges[dir] = dest
 	}
-	m[n.name] = n
+	updateNodeMap(m, name, rawEdges)
 	return nil
+}
+
+func updateNodeMap(m map[string]*node, name string, rawEdges map[string]string) {
+	center, ok := m[name]
+	if !ok {
+		center = &node{
+			name:      name,
+			edges:     make(map[string]*node),
+			destroyed: false,
+			aliens:    make(map[*alien]struct{}),
+		}
+	}
+	for dir, label := range rawEdges {
+		dest, ok := m[label]
+		if !ok {
+			// implicitly create this newly seen node name
+			dest = &node{
+				name:      label,
+				edges:     make(map[string]*node),
+				destroyed: false,
+				aliens:    make(map[*alien]struct{}),
+			}
+		}
+		// update edges
+		switch dir {
+		case "north":
+			center.edges["north"] = dest
+			dest.edges["south"] = center
+		case "east":
+			center.edges["east"] = dest
+			dest.edges["west"] = center
+		case "south":
+			center.edges["south"] = dest
+			dest.edges["north"] = center
+		case "west":
+			center.edges["west"] = dest
+			dest.edges["east"] = center
+		}
+		m[label] = dest
+	}
+	m[name] = center
 }

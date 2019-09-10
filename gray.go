@@ -57,7 +57,7 @@ func New(input io.Reader, attackers uint) (*World, error) {
 
 type node struct {
 	name      string
-	edges     []string
+	edges     map[string]*node
 	destroyed bool
 	aliens    map[*alien]struct{}
 }
