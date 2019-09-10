@@ -19,7 +19,7 @@ gg filename
 
 Custom alien count:
 ```
-gg filename
+gg -n 10 filename
 ```
 
 Problem Statement
