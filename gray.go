@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// World represents the game state
 type World struct {
 	turns  uint
 	nodes  map[string]*node
@@ -35,6 +36,8 @@ func (w *World) GameOver() bool {
 	return (w.turns >= 10000 || living == 0)
 }
 
+// Brawl performs alien fights. Any aliens on the same node are destroyed. That node is destroyed. All edges associated with that node are
+// destroyed.
 func (w *World) Brawl() {
 	for _, node := range w.nodes {
 		if node.destroyed {
