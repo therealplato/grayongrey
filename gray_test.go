@@ -137,30 +137,50 @@ func TestDestroyedAlienDoesNotMove(t *testing.T) {
 }
 
 func TestBrawlKillsAliens(t *testing.T) {
+	rand.Seed(1)
+	buf := bytes.NewBufferString(`Athens south=Beirut
+Beirut north=Athens south=Charleston
+Charleston north=Beirut`)
+	w, err := New(buf, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
 	a1 := &alien{name: "alien 1"}
 	a2 := &alien{name: "alien 2"}
-	n1 := &node{
-		name:  "Arvada",
-		edges: make(map[string]*node),
-		aliens: map[*alien]struct{}{
-			a1: struct{}{},
-			a2: struct{}{},
-		},
+	a1.loc = w.nodes["Beirut"]
+	a2.loc = w.nodes["Beirut"]
+	w.nodes["Beirut"].aliens = map[*alien]struct{}{
+		a1: struct{}{},
+		a2: struct{}{},
 	}
-	a1.loc = n1
-	a2.loc = n1
-	w := World{
-		nodes: map[string]*node{
-			"Arvada": n1,
-		},
-		aliens: []*alien{a1, a2},
-	}
+	w.aliens = []*alien{a1, a2}
 	w.Brawl()
+	w.Log()
 	if a1.destroyed != true {
 		t.Fatal("alien 1 should have been destroyed")
 	}
 	if a2.destroyed != true {
 		t.Fatal("alien 2 should have been destroyed")
+	}
+
+	if w.nodes["Athens"].destroyed == true {
+		t.Fatal("Athens should not have been destroyed")
+	}
+	if w.nodes["Beirut"].destroyed != true {
+		t.Fatal("Beirut should have been destroyed")
+	}
+	if w.nodes["Charleston"].destroyed == true {
+		t.Fatal("Charleston should not have been destroyed")
+	}
+
+	if len(w.nodes["Athens"].edges) != 0 {
+		t.Fatal("Athens should have had all roads destroyed")
+	}
+	if len(w.nodes["Beirut"].edges) != 0 {
+		t.Fatal("Beirut should have had all roads destroyed")
+	}
+	if len(w.nodes["Charleston"].edges) != 0 {
+		t.Fatal("Charleston should have had all roads destroyed")
 	}
 }
 

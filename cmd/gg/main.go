@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"math/rand"
@@ -55,5 +54,5 @@ func main() {
 	for !world.GameOver() {
 		world.Iterate()
 	}
-	fmt.Printf("%#v\n", world)
+	world.Log()
 }

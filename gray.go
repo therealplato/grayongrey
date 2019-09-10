@@ -26,33 +26,67 @@ func (w *World) Iterate() {
 
 // GameOver returns true if 10000 moves have passed or all aliens are terminated
 func (w *World) GameOver() bool {
-	aliveAliens := 0
+	living := 0
 	for _, a := range w.aliens {
 		if a.destroyed == false {
-			aliveAliens++
+			living++
 		}
 	}
-	return (w.turns >= 10000 || aliveAliens == 0)
+	return (w.turns >= 10000 || living == 0)
 }
 
 func (w *World) Brawl() {
-	for _, v := range w.nodes {
+	for _, node := range w.nodes {
 		participants := make([]string, 0)
-		if len(v.aliens) > 1 {
-			for a, _ := range v.aliens {
+		if len(node.aliens) > 1 {
+			// destroy aliens
+			for a, _ := range node.aliens {
 				a.destroyed = true
 				participants = append(participants, a.name)
 			}
-			v.destroyed = true
+			// destroy city
+			node.destroyed = true
+			// destroy roads
+			for k, v := range node.edges {
+				switch k {
+				case "north":
+					delete(v.edges, "south")
+					delete(node.edges, "north")
+				case "east":
+					delete(v.edges, "west")
+					delete(node.edges, "east")
+				case "south":
+					delete(v.edges, "north")
+					delete(node.edges, "south")
+				case "west":
+					delete(v.edges, "east")
+					delete(node.edges, "west")
+				}
+			}
 			msg := strings.Join(participants, ", ")
-			msg = v.name + " destroyed by " + msg
+			msg = node.name + " destroyed by " + msg
 			fmt.Println(msg)
 		}
 	}
 }
 
+// Log formats and outputs the world state
+func (w *World) Log() {
+	// // ignoring sorting
+	msg := ""
+	for _, node := range w.nodes {
+		msg = msg + node.name + " "
+		for dir, node2 := range node.edges {
+			msg = msg + dir + "=" + node2.name + " "
+		}
+		msg = strings.TrimSpace(msg)
+		msg += "\n"
+	}
+	fmt.Println(msg)
+}
+
 // New takes input world data and number of attackers and creates a *World state
-func New(input io.Reader, attackers uint) (*World, error) {
+func New(input io.Reader, n uint) (*World, error) {
 	aliens := make([]*alien, 0)
 	nodeNames := make([]string, 0)
 	nodeMap, err := parseInput(input)
@@ -66,7 +100,7 @@ func New(input io.Reader, attackers uint) (*World, error) {
 		nodeNames = append(nodeNames, k)
 	}
 	var i uint
-	for ; i < attackers; i++ {
+	for ; i < n; i++ {
 		a := &alien{
 			name: "Alien " + strconv.Itoa(int(i)),
 		}
