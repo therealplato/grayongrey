@@ -38,6 +38,7 @@ func main() {
 		} else if len(os.Args) > 2 {
 			log.Println("ignoring arguments after " + os.Args[1])
 		}
+		// TODO: thought incorrectly that flags did not appear in os.Args, `gg -n 10 filename` fails
 		f, err := os.Open(os.Args[1])
 		if err != nil {
 			log.Fatalf("issue opening file %q: %v", os.Args[1], err)

@@ -135,3 +135,32 @@ func TestDestroyedAlienDoesNotMove(t *testing.T) {
 		t.Fatal("alien should not update own loc")
 	}
 }
+
+func TestBrawlKillsAliens(t *testing.T) {
+	// make deterministic:
+	a1 := &alien{name: "alien 1"}
+	a2 := &alien{name: "alien 2"}
+	n1 := &node{
+		name:  "Arvada",
+		edges: make(map[string]*node),
+		aliens: map[*alien]struct{}{
+			a1: struct{}{},
+			a2: struct{}{},
+		},
+	}
+	a1.loc = n1
+	a2.loc = n1
+	w := World{
+		nodes: map[string]*node{
+			"Arvada": n1,
+		},
+		aliens: []*alien{a1, a2},
+	}
+	w.Brawl()
+	if a1.destroyed != true {
+		t.Fatal("alien 1 should have been destroyed")
+	}
+	if a2.destroyed != true {
+		t.Fatal("alien 2 should have been destroyed")
+	}
+}

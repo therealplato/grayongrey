@@ -2,9 +2,11 @@ package grayongrey
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"math/rand"
 	"strconv"
+	"strings"
 )
 
 type World struct {
@@ -19,6 +21,7 @@ func (w *World) Iterate() {
 	for _, a := range w.aliens {
 		a.move()
 	}
+	w.Brawl()
 }
 
 // GameOver returns true if 10000 moves have passed or all aliens are terminated
@@ -33,6 +36,19 @@ func (w *World) GameOver() bool {
 }
 
 func (w *World) Brawl() {
+	for _, v := range w.nodes {
+		participants := make([]string, 0)
+		if len(v.aliens) > 1 {
+			for a, _ := range v.aliens {
+				a.destroyed = true
+				participants = append(participants, a.name)
+			}
+			v.destroyed = true
+			msg := strings.Join(participants, ", ")
+			msg = v.name + " destroyed by " + msg
+			fmt.Println(msg)
+		}
+	}
 }
 
 // New takes input world data and number of attackers and creates a *World state
