@@ -9,8 +9,8 @@ import (
 	"regexp"
 )
 
-func parseInput(r io.Reader) (map[string]node, []string, error) {
-	var outMap = make(map[string]node)
+func parseInput(r io.Reader) (map[string]*node, []string, error) {
+	var outMap = make(map[string]*node)
 	var outNames []string
 	bb, err := ioutil.ReadAll(r)
 	if err != nil {
@@ -20,6 +20,9 @@ func parseInput(r io.Reader) (map[string]node, []string, error) {
 	for _, line := range lines {
 		node, err := processLine(line)
 		if err != nil {
+			if err == errEmptyLine {
+				continue
+			}
 			return nil, nil, err
 		}
 		outMap[node.name] = node
@@ -34,8 +37,10 @@ var regexpDirection = regexp.MustCompile(`^(north|east|south|west)=([^=]+)$`)
 
 var errEmptyLine = errors.New("input line was empty")
 
-func processLine(bb []byte) (node, error) {
-	var n node
+func processLine(bb []byte) (*node, error) {
+	var n = &node{
+		aliens: make(map[*alien]struct{}),
+	}
 	fields := bytes.Fields(bb)
 	if len(fields) < 1 {
 		return n, errEmptyLine

@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/therealplato/grayongrey"
 )
@@ -16,7 +18,8 @@ func main() {
 	var input = &bytes.Buffer{}
 	flag.UintVar(&n, "n", 2, "number of aliens")
 	flag.Parse()
-	_ = n
+
+	rand.Seed(time.Now().UnixNano())
 
 	// handle stdin pipes, via https://stackoverflow.com/a/43947435/1380669
 	fi, err := os.Stdin.Stat()
