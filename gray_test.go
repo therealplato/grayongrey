@@ -137,7 +137,6 @@ func TestDestroyedAlienDoesNotMove(t *testing.T) {
 }
 
 func TestBrawlKillsAliens(t *testing.T) {
-	// make deterministic:
 	a1 := &alien{name: "alien 1"}
 	a2 := &alien{name: "alien 2"}
 	n1 := &node{
@@ -162,5 +161,27 @@ func TestBrawlKillsAliens(t *testing.T) {
 	}
 	if a2.destroyed != true {
 		t.Fatal("alien 2 should have been destroyed")
+	}
+}
+
+func TestDestroyedCitiesAreImpassable(t *testing.T) {
+	rand.Seed(1)
+	buf := bytes.NewBufferString(`Athens south=Beirut
+Beirut north=Athens south=Charleston
+Charleston north=Beirut`)
+	w, err := New(buf, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a1 := &alien{name: "alien 1"}
+	w.nodes["Athens"].aliens = map[*alien]struct{}{
+		a1: struct{}{},
+	}
+	a1.loc = w.nodes["Athens"]
+	w.aliens = []*alien{a1}
+	w.nodes["Beirut"].destroyed = true
+	w.Iterate()
+	if a1.loc != w.nodes["Athens"] {
+		t.Fatal("alien 1 should have been stuck in Athens")
 	}
 }

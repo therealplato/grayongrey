@@ -1,0 +1,2 @@
+Athens north=Beirut
+Beirut south=Athens
