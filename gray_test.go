@@ -97,3 +97,41 @@ func TestIterateMovesAlien(t *testing.T) {
 		t.Fatal("alien did not update own loc to Boulder")
 	}
 }
+
+func TestDestroyedAlienDoesNotMove(t *testing.T) {
+	// make deterministic:
+	rand.Seed(1)
+	a1 := &alien{destroyed: true}
+	n1 := &node{
+		name:  "Arvada",
+		edges: make(map[string]*node),
+		aliens: map[*alien]struct{}{
+			a1: struct{}{},
+		},
+	}
+	n2 := &node{
+		name:   "Boulder",
+		edges:  make(map[string]*node),
+		aliens: map[*alien]struct{}{},
+	}
+	a1.loc = n1
+	n1.edges["west"] = n2
+	n2.edges["east"] = n1
+	w := World{
+		nodes: map[string]*node{
+			"Arvada":  n1,
+			"Boulder": n2,
+		},
+		aliens: []*alien{a1},
+	}
+	w.Iterate()
+	if len(n1.aliens) != 1 {
+		t.Fatal("alien should not leave Arvada")
+	}
+	if len(n2.aliens) != 0 {
+		t.Fatal("alien should not arrive in Boulder")
+	}
+	if w.aliens[0].loc != n1 {
+		t.Fatal("alien should not update own loc")
+	}
+}

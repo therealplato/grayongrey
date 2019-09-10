@@ -32,6 +32,9 @@ func (w *World) GameOver() bool {
 	return (w.turns >= 10000 || aliveAliens == 0)
 }
 
+func (w *World) Brawl() {
+}
+
 // New takes input world data and number of attackers and creates a *World state
 func New(input io.Reader, attackers uint) (*World, error) {
 	aliens := make([]*alien, 0)
@@ -77,8 +80,11 @@ type alien struct {
 	destroyed bool
 }
 
-// move randomly picks an available edge, or no edge, then updates the alien's location and the locataions' aliens
+// move randomly picks an available edge, or no edge, then updates the alien's location and the locations' aliens
 func (a *alien) move() {
+	if a.destroyed {
+		return
+	}
 	available := make([]*node, 0)
 	for _, v := range a.loc.edges {
 		available = append(available, v)
