@@ -4,6 +4,7 @@ import "io"
 
 type World struct {
 	turns uint
+	nodes []node
 }
 
 // Iterate performs one game loop
@@ -18,4 +19,9 @@ func (w *World) Exists() bool {
 
 func New(input io.Reader, attackers uint) *World {
 	return &World{}
+}
+
+type node struct {
+	name  string
+	edges []node
 }
