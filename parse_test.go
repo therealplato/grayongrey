@@ -51,6 +51,17 @@ Beirut
 	}
 }
 
+func TestProcessLineInsertsToMap(t *testing.T) {
+	m := make(map[string]*node)
+	err := processLine([]byte("Athens"), m)
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if len(m) != 1 {
+		t.Fatalf("expected one node, got %v", len(m))
+	}
+}
+
 func TestProcessLinePopulatesMissingNodes(t *testing.T) {
 	m := make(map[string]*node)
 	err := processLine([]byte("Athens north=Beirut"), m)

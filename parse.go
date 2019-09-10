@@ -35,9 +35,6 @@ var regexpDirection = regexp.MustCompile(`^(north|east|south|west)=([^=]+)$`)
 var errEmptyLine = errors.New("input line was empty")
 
 func processLine(bb []byte, m map[string]*node) error {
-	var n = &node{
-		aliens: make(map[*alien]struct{}),
-	}
 	fields := bytes.Fields(bb)
 	if len(fields) < 1 {
 		return errEmptyLine
@@ -45,7 +42,15 @@ func processLine(bb []byte, m map[string]*node) error {
 	if len(fields) > 5 {
 		return fmt.Errorf("input had too many items: %q", string(bb))
 	}
-	n.name = string(fields[0])
+	name := string(fields[0])
+	n, _ := m[name]
+	if n == nil {
+		n = &node{
+			name:   name,
+			aliens: make(map[*alien]struct{}),
+		}
+	}
+
 	for i := 1; i < len(fields); i++ {
 		groups := regexpDirection.FindSubmatch(fields[i])
 		// groups[0] is full match
@@ -58,5 +63,6 @@ func processLine(bb []byte, m map[string]*node) error {
 		dest := string(groups[2])
 		n.edges = append(n.edges, dest)
 	}
+	m[n.name] = n
 	return nil
 }
