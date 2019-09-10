@@ -36,3 +36,18 @@ func TestParseInputAcceptsIsolatedCity(t *testing.T) {
 		t.Fatal("expected node map keyed on Athens, but was missing")
 	}
 }
+
+func TestParseInputPopulatesMissingNodes(t *testing.T) {
+	input := bytes.NewBufferString("Athens north=Beirut")
+	nodes, err := parseInput(input)
+	if err != nil {
+		t.Fatalf("expected nil, got %v", err)
+	}
+	if len(nodes) != 2 {
+		t.Fatalf("expected two nodes, got %v", len(nodes))
+	}
+	_, ok := nodes["Beirut"]
+	if !ok {
+		t.Fatal("expected Beirut to be inserted, but was missing")
+	}
+}

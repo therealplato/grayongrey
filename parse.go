@@ -40,7 +40,10 @@ func processLine(bb []byte, nodes map[string]node) error {
 	n.name = string(fields[0])
 	for i := 1; i < len(fields); i++ {
 		groups := regexpDirection.FindSubmatch(fields[i])
-		if len(groups) != 2 {
+		// groups[0] is full match
+		// groups[1] is direction
+		// groups[2] is destination
+		if len(groups) != 3 {
 			return fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
 		}
 	}
