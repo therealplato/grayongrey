@@ -46,6 +46,9 @@ func processLine(bb []byte, nodes map[string]node) error {
 		if len(groups) != 3 {
 			return fmt.Errorf("input direction did not match north=Beirut: %q", string(fields[i]))
 		}
+		// dir := string(groups[1])
+		dest := string(groups[2])
+		n.edges = append(n.edges, dest)
 	}
 	nodes[n.name] = n
 	return nil

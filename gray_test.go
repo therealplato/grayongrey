@@ -6,11 +6,10 @@ import (
 )
 
 func TestNewWorld(t *testing.T) {
-	t.Run("returns empty world with empty reader", func(t *testing.T) {
-		w := New(&bytes.Buffer{}, 0)
-		actual := len(w.nodes)
-		if actual != 0 {
-			t.Fatalf("expected 0 cities, had %v cities\n", actual)
+	t.Run("errors with empty reader", func(t *testing.T) {
+		_, err := New(&bytes.Buffer{}, 0)
+		if err == nil {
+			t.Fatalf("expected error, got %v\n", err)
 		}
 	})
 
@@ -19,7 +18,10 @@ func TestNewWorld(t *testing.T) {
 	var fixtureOneCity = bytes.NewBufferString("Aberdeen")
 
 	t.Run("returns populated world with node input", func(t *testing.T) {
-		w := New(fixtureOneCity, 0)
+		w, err := New(fixtureOneCity, 0)
+		if err != nil {
+			t.Fatalf("expected nil error, got %v\n", err)
+		}
 		actual := len(w.nodes)
 		if actual != 1 {
 			t.Fatalf("expected 1 node, had %v cities\n", actual)
