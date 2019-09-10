@@ -2,6 +2,7 @@ package grayongrey
 
 import (
 	"bytes"
+	"math/rand"
 	"testing"
 )
 
@@ -33,4 +34,65 @@ func TestNewWorld(t *testing.T) {
 			t.Fatalf("expected 2 aliens in world slice, had %v\n", len(w.aliens))
 		}
 	})
+}
+
+func TestTerminationConditions(t *testing.T) {
+	t.Run("with no aliens left", func(t *testing.T) {
+		w, err := New(bytes.NewBufferString("Aberdeen"), 0)
+		if err != nil {
+			t.Fatalf("expected nil error, got %v\n", err)
+		}
+		actual := w.GameOver()
+		if actual != true {
+			t.Fatal("expected termination with no aliens but game isnt over")
+		}
+	})
+	t.Run("with 10001 moves", func(t *testing.T) {
+		w, err := New(bytes.NewBufferString("Aberdeen"), 1)
+		if err != nil {
+			t.Fatalf("expected nil error, got %v\n", err)
+		}
+		w.turns = 10001
+		actual := w.GameOver()
+		if actual != true {
+			t.Fatal("expected termination from turn count but game isnt over", err)
+		}
+	})
+}
+
+func TestIterateMovesAlien(t *testing.T) {
+	// make deterministic:
+	rand.Seed(1)
+	a1 := &alien{}
+	n1 := &node{
+		name:  "Arvada",
+		edges: make(map[string]*node),
+		aliens: map[*alien]struct{}{
+			a1: struct{}{},
+		},
+	}
+	n2 := &node{
+		name:   "Boulder",
+		edges:  make(map[string]*node),
+		aliens: map[*alien]struct{}{},
+	}
+	n1.edges["west"] = n2
+	n2.edges["east"] = n1
+	w := World{
+		nodes: map[string]*node{
+			"Arvada":  n1,
+			"Boulder": n2,
+		},
+		aliens: []*alien{a1},
+	}
+	w.Iterate()
+	if len(n1.aliens) != 0 {
+		t.Fatal("alien did not leave Arvada")
+	}
+	if len(n2.aliens) != 0 {
+		t.Fatal("alien did not arrive in Boulder")
+	}
+	if w.aliens[0].loc != n2 {
+		t.Fatal("alien did not update own loc to Boulder")
+	}
 }

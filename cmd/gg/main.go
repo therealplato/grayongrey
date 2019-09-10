@@ -51,8 +51,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("issue instantiating world: %v", err)
 	}
-	fmt.Printf("%#v\n", world)
-	for world.Exists() {
+	for !world.GameOver() {
 		world.Iterate()
 	}
+	fmt.Printf("%#v\n", world)
 }

@@ -18,9 +18,15 @@ func (w *World) Iterate() {
 	w.turns++
 }
 
-// Exists returns true if the game should continue from this state
-func (w *World) Exists() bool {
-	return w.turns < 10000
+// GameOver returns true if 10000 moves have passed or all aliens are terminated
+func (w *World) GameOver() bool {
+	aliveAliens := 0
+	for _, a := range w.aliens {
+		if a.destroyed == false {
+			aliveAliens++
+		}
+	}
+	return (w.turns >= 10000 || aliveAliens == 0)
 }
 
 // New takes input world data and number of attackers and creates a *World state
